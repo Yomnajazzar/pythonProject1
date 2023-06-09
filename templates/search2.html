@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Bar Example</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .sidebar h1 {
+            margin: 0;
+            padding: 10px 0;
+        }
+
+        .main-content {
+            padding: 20px;
+            text-align: center;
+        }
+
+        #search-form {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        #data {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #query {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #3b8b3f;
+        }
+
+        #search-results {
+            margin-top: 20px;
+            text-align: center;
+            color: #333;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+      #suggestions {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  z-index: 999;
+  width: 300px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  display: none; /* تخفي العنصر في البداية */
+}
+
+#suggestions li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+#suggestions li:hover {
+  background-color: #f2f2f2;
+}
+
+/* أضف هذا لجعل العنصر يظهر تحت الحقل */
+#search-form {
+  position: relative;
+}
+
+#suggestions {
+  top: 100%; /* يأخذ المكان تحت الحقل */
+  left: 0;
+  display: block; /* يجعل العنصر مرئي عندما يتم عرض المقترحات */
+}
+#suggestions-list {
+  display: block;
+}
+    </style>
+    <script>
+        $(document).ready(function() {
+            $('#query').keypress(function() {
+                console.log($(this).val());
+                var query = $('#query').val(); // Get search query
+                $.get('http://127.0.0.1:5000/complete', {query: query}, function(data) {
+                console.log(data);
+                  $('#suggestions-list').html('');
+
+                     var options = '';
+                        for (var i = 0; i < data.results.length; i++) {
+                          options += '<option value="' + data.results[i] + '">';
+                        }
+                          // إضافة الخيارات الجديدة إلى datalist
+                    $('#suggestions-list').append(options);
+
+
+                });
+
+                });
+
+
+            $('#search-form').submit(function(event) {
+                event.preventDefault(); // Prevent form submission
+                var query = $('#query').val(); // Get search query
+                var dataSet = $('#data').val(); // Get search query
+                $.get('http://127.0.0.1:5000/search', {query: query , dataSet:dataSet}, function(data) {
+                var div = $('#search-results');
+                $('#search-results').html('');
+                    for (var i = 0; i < data.results.length; i++) {
+                      div.append(data.results[i]);
+                      div.append('<br>');}
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="sidebar">
+        <h1>Search Engine</h1>
+    </div>
+    <div class="main-content">
+        <form id="search-form">
+            <label for="data">Choose a Data Set:</label>
+            <select name="data" id="data" value="1">
+                <option value="1">Data Set 1</option>
+                <option value="2">Data Set 2</option>
+            </select>
+            <br><br>
+           <label for="query">Search:</label>
+<input type="text" id="query" name="query" list="suggestions-list" autocomplete="off"><button type="submit">Search</button>
+<datalist id="suggestions-list">
+  <option value="Suggestion 1">
+  <option value="Suggestion 2">
+  <option value="Suggestion 3">
+</datalist>
+
+            <br><br>
+
+        </form>
+        <div id="search-results"></div>
+    </div>
+</body>
+</html>
